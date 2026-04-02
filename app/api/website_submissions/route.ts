@@ -1,6 +1,46 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 import { NextRequest } from "next/server";
+import { use } from "react";
+
+export async function PUT(req: Request) {
+  const body = await req.json();
+  const {name, person, id, remind_at, description} = body
+  const client = await createClient();
+  const {data: userData, error: userError} = await client.auth.getUser();
+  if (userError) {
+    return NextResponse.json( {
+      error: "Authentication Error"},
+      {status: 500
+    })
+  }
+  if (!name || !person || !id || !remind_at) {
+    return NextResponse.json( {
+      error: "Incorrect Inputs"},
+      {status: 400}
+    )
+  } else if (!userData.user) {
+    return NextResponse.json( {
+      error: "Invalid User"},
+      {status: 401}
+    )
+  }
+
+    const { data, error} = await client
+  .from('website_submissions')
+  .update({ name, person, remind_at, description})
+  .eq('id', id)
+  .eq('user_id', userData.user.id)
+  .select()
+
+  if (error) {
+    return NextResponse.json( {
+      error: error.message},
+      {status: 500}
+    )
+  }
+  return NextResponse.json({data})
+}
 
 export async function GET() {
     const client = await createClient()
@@ -20,7 +60,7 @@ export async function GET() {
     }
     const { data, error} = await client
     .from('website_submissions')
-    .select('person, name, description, remind_at')
+    .select('person, name, description, remind_at, id')
     .eq('user_id', userData.user.id);
 
     if (error) {

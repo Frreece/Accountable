@@ -60,6 +60,7 @@ export default function Reminder() {
         onChange={(e) => setDesc(e.target.value)}
       />
       <input
+        type="datetime-local"
         placeholder="When to remind you?"
         value={remindAt}
         required

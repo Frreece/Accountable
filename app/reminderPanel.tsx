@@ -1,17 +1,18 @@
 'use client'
 import { useState } from "react"
+import ReminderModal from "./reminderModal"
 
-type ReminderRow = {
+export type ReminderRow = {
   id: string
   person: string
   name: string
   description: string | null
-  remindAt: string
+  remind_at: string
 }
 
 function ReminderItem({ reminder }: { reminder: ReminderRow }) {
-  const formattedDate = reminder.remindAt
-    ? new Date(reminder.remindAt).toLocaleDateString("en-US", {
+  const formattedDate = reminder.remind_at
+    ? new Date(reminder.remind_at).toLocaleDateString("en-US", {
         month: "short",
         day: "numeric",
         hour: "numeric",
@@ -37,6 +38,7 @@ export default function ReminderPanel() {
   const [reminders, setReminders] = useState<ReminderRow[]>([])
   const [loading, setLoading] = useState(false)
   const [loaded, setLoaded] = useState(false)
+  const [selectedReminder, setSelectedReminder] = useState<ReminderRow | null>(null);
 
   const handleClick = async () => {
     setLoading(true)
@@ -46,6 +48,8 @@ export default function ReminderPanel() {
     setLoading(false)
     setLoaded(true)
   }
+
+  const onClose = () => setSelectedReminder(null);
 
   return (
     <div>
@@ -62,10 +66,14 @@ export default function ReminderPanel() {
       {!loading && reminders.length > 0 && (
         <div className="reminder-list">
           {reminders.map((reminder) => (
-            <ReminderItem key={reminder.name} reminder={reminder} />
+            <div key = {reminder.id} onClick={ () => reminder === null ? console.log("No Reminders") : setSelectedReminder(reminder)}>
+                <ReminderItem key={reminder.name} reminder={reminder} />
+            </div>
           ))}
+          {selectedReminder != null && (<ReminderModal reminder = {selectedReminder} onClose={onClose} />)}
         </div>
       )}
+
     </div>
   )
 }
