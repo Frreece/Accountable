@@ -14,18 +14,13 @@ export async function POST(req: Request) {
   const client = await createClient()
 
   // Fetch reminders due in the past minute that haven't been sent yet
-  const now = new Date()
-  const oneMinuteAgo = new Date(now.getTime() - 60 * 1000)
+    const now = new Date()
 
-  const { data: reminders, error } = await client
+    const { data: reminders, error } = await client
     .from("reminders")
-    .select(`
-      *,
-      reminder_recipients ( recipient_email )
-    `)
+    .select(`*, reminder_recipients ( recipient_email )`)
     .eq("sent", false)
     .lte("remind_at", now.toISOString())
-    .gte("remind_at", oneMinuteAgo.toISOString())
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })
