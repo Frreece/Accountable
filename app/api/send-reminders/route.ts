@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { Resend } from "resend"
 import { createClient } from "@/lib/supabase/server"
+import { createServiceClient } from "@/lib/supabase/service"
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -11,7 +12,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
-  const client = await createClient()
+  const client = createServiceClient()
 
   // Fetch reminders due in the past minute that haven't been sent yet
     const now = new Date()
@@ -35,7 +36,7 @@ export async function POST(req: Request) {
     const emails = reminder.reminder_recipients.map((r: any) => r.recipient_email)
 
     await resend.emails.send({
-      from: "reminders@yourdomain.com",
+      from: "onboarding@resend.dev",
       to: emails,
       subject: `Reminder: ${reminder.name}`,
       html: `
