@@ -4,10 +4,11 @@ import ReminderModal from "./reminderModal"
 
 export type ReminderRow = {
   id: string
-  person: string
+  creator_user_id: string
   name: string
   description: string | null
   remind_at: string
+  reminder_recipients?: { recipient_email: string; status: string }[]
 }
 
 function ReminderItem({ reminder }: { reminder: ReminderRow }) {
@@ -20,12 +21,18 @@ function ReminderItem({ reminder }: { reminder: ReminderRow }) {
       })
     : null
 
+  const recipients = reminder.reminder_recipients
+    ?.map(r => r.recipient_email)
+    .join(", ")
+
   return (
     <div className="reminder-item">
       <div className="reminder-dot" />
       <div className="reminder-item-body">
         <span className="reminder-item-name">{reminder.name}</span>
-        <span className="reminder-item-person">with {reminder.person}</span>
+        {recipients && (
+          <span className="reminder-item-person">with {recipients}</span>
+        )}
       </div>
       {formattedDate && (
         <span className="reminder-item-time">{formattedDate}</span>
@@ -42,9 +49,9 @@ export default function ReminderPanel() {
 
   const handleClick = async () => {
     setLoading(true)
-    const req = await fetch("/api/website_submissions", { method: "GET" })
+    const req = await fetch("/api/reminders", { method: "GET" })  // was /api/website_submissions
     const res = await req.json()
-    setReminders(res.data)
+    setReminders(res.reminders)  // was res.data
     setLoading(false)
     setLoaded(true)
   }
@@ -70,7 +77,15 @@ export default function ReminderPanel() {
                 <ReminderItem key={reminder.name} reminder={reminder} />
             </div>
           ))}
-          {selectedReminder != null && (<ReminderModal reminder = {selectedReminder} onClose={onClose} />)}
+          {selectedReminder != null && (
+            <ReminderModal
+              reminder={selectedReminder}
+              recipientEmails={
+                selectedReminder.reminder_recipients?.map(r => r.recipient_email) ?? []
+              }
+              onClose={onClose}
+            />
+          )}
         </div>
       )}
 

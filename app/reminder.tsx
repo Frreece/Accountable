@@ -3,15 +3,21 @@ import { useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 
 export default function Reminder() {
-  const [person, setPerson] = useState("")
+  const [emailsInput, setEmailsInput] = useState("")
   const [name, setName] = useState("")
   const [description, setDesc] = useState("")
-  const [remindAt, setRemindAt] = useState("")
+  const [remind_at, setRemindAt] = useState("")
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setStatus("loading")
+    const recipientEmails = [...new Set(
+    emailsInput
+    .split(",")
+    .map((email) => email.trim().toLowerCase())
+    .filter((email) => email.length > 0)
+)]
 
     const supabase = createClient()
     const { data, error } = await supabase.auth.getUser()
@@ -22,15 +28,20 @@ export default function Reminder() {
       return
     }
 
-    const res = await fetch("/api/website_submissions", {
+    const res = await fetch("/api/reminders", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ person, name, description, remindAt }),
+      body: JSON.stringify({
+      name,
+      description,
+      remind_at,
+      recipientEmails
+      }),
     })
 
     if (res.ok) {
       setStatus("success")
-      setPerson("")
+      setEmailsInput("")
       setName("")
       setDesc("")
       setRemindAt("")
@@ -43,10 +54,9 @@ export default function Reminder() {
   return (
     <form className="reminder-form" onSubmit={handleSubmit}>
       <input
-        placeholder="Who will hold you accountable?"
-        value={person}
-        required
-        onChange={(e) => setPerson(e.target.value)}
+        placeholder="Invite people by email (comma separated)"
+        value={emailsInput}
+        onChange={(e) => setEmailsInput(e.target.value)}
       />
       <input
         placeholder="Reminder name"
@@ -62,7 +72,7 @@ export default function Reminder() {
       <input
         type="datetime-local"
         placeholder="When to remind you?"
-        value={remindAt}
+        value={remind_at}
         required
         onChange={(e) => setRemindAt(e.target.value)}
       />
