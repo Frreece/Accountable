@@ -5,6 +5,7 @@ import Reminder from "./reminder"
 import ReminderPanel from "./reminderPanel"
 import SignUpForm from "./signUpForm"
 import SignInForm from "./signInForm"
+import { Analytics } from '@vercel/analytics/next'
 
 export default function RootLayout() {
   return (
@@ -54,6 +55,7 @@ export default function RootLayout() {
 
         </main>
 
+        <Analytics />
       </body>
     </html>
   )
