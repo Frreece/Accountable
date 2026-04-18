@@ -3,8 +3,6 @@ import "./globals.css"
 import Navbar from "./nav"
 import Reminder from "./reminder"
 import ReminderPanel from "./reminderPanel"
-import SignUpForm from "./signUpForm"
-import SignInForm from "./signInForm"
 
 export default function RootLayout() {
   return (
@@ -12,7 +10,6 @@ export default function RootLayout() {
       <body>
 
         <nav className="site-nav">
-          <span className="site-nav-logo">Accountable</span>
           <Navbar />
         </nav>
 
@@ -40,18 +37,6 @@ export default function RootLayout() {
             <p className="card-label">Your reminders</p>
             <ReminderPanel />
           </div>
-
-          <div className="auth-row">
-            <div className="auth-half">
-              <p className="card-label">Sign up</p>
-              <SignUpForm />
-            </div>
-            <div className="auth-half">
-              <p className="card-label">Sign in</p>
-              <SignInForm />
-            </div>
-          </div>
-
         </main>
 
       </body>
