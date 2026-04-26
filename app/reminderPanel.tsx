@@ -46,14 +46,35 @@ export default function ReminderPanel() {
   const [loading, setLoading] = useState(false)
   const [loaded, setLoaded] = useState(false)
   const [selectedReminder, setSelectedReminder] = useState<ReminderRow | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const handleClick = async () => {
     setLoading(true)
-    const req = await fetch("/api/reminders", { method: "GET" })  // was /api/website_submissions
+    setError(null);
+    try {
+    const req = await fetch("/api/reminders", { method: "GET" })
     const res = await req.json()
-    setReminders(res.reminders)  // was res.data
-    setLoading(false)
-    setLoaded(true)
+
+    if (!req.ok) {
+      if (req.status === 401) {
+        setError("You aren't signed in. Please sign in to view your reminders.")
+        } else {
+          setError(res.error ?? "Something went wrong while loading reminders.")
+        }
+
+        setReminders([])
+        setLoaded(true)
+        return
+      }
+
+      setReminders(res.reminders ?? [])
+      setLoaded(true)
+    } catch (err) {
+      console.log(err)
+      setError("Could not connect to the server.")
+    } finally {
+      setLoading(false)
+    }
   }
 
   const onClose = () => setSelectedReminder(null);
@@ -65,6 +86,7 @@ export default function ReminderPanel() {
       </button>
 
       {loading && <p className="reminder-loading">Loading…</p>}
+      {error && <p>{error}</p>}
 
       {loaded && !loading && reminders.length === 0 && (
         <p className="reminder-empty">No reminders yet.</p>

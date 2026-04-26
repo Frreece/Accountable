@@ -2,10 +2,19 @@
 import { useState } from "react"
 import SignUpForm from "./signUpForm"
 import SignInForm from "./signInForm"
+import SignOutButton from "./signOutButton"
+
+type AuthMode = "signup" | "signin" | "signout"
+const labels: Record<AuthMode, string> = {
+  signup: "Sign up",
+  signin: "Sign in",
+  signout: "Sign out",
+}
 
 export default function Navbar() {
   const [modalOpen, setModalOpen] = useState(false)
-  const [mode, setMode] = useState<"signup" | "signin">("signup")
+  const [mode, setMode] = useState<"signup" | "signin" | "signout">("signup")
+
 
   return (
     <>
@@ -21,19 +30,21 @@ export default function Navbar() {
           <div className="modal-card" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <div className="auth-toggle">
-                {(["signup", "signin"] as const).map((m) => (
+                {(["signup", "signin", "signout"] as const).map((m) => (
                   <button
                     key={m}
                     className={`auth-toggle-btn${mode === m ? " active" : ""}`}
                     onClick={() => setMode(m)}
                   >
-                    {m === "signup" ? "Sign up" : "Sign in"}
+                    {labels[m]}
                   </button>
                 ))}
               </div>
             </div>
             <div className="modal-body">
-              {mode === "signup" ? <SignUpForm /> : <SignInForm />}
+              {mode === "signup" && <SignUpForm/>}
+              {mode === "signin" && <SignInForm/>}
+              {mode === "signout" && <SignOutButton/>}
             </div>
           </div>
         </div>
